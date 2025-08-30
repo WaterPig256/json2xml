@@ -1,7 +1,5 @@
 package org.example;
 
-import javafx.event.Event;
-import javafx.event.EventType;
 import org.w3c.dom.Document;
 import ui.FileView;
 import ui.FileViewModel;

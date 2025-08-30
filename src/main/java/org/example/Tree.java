@@ -15,7 +15,7 @@ public class Tree {
             for (Bookmark bookmark1 : bookmark.subCatalog()) {
                 show(bookmark1, blanket);
             }
-            blanket.delete(0, blanket.length());
+            blanket.delete(blanket.length() - 1, blanket.length());
         }
         return context.toString();
     }

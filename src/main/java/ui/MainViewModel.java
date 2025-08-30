@@ -14,7 +14,7 @@ public class MainViewModel {
 
     private final ObjectProperty<String> context = new SimpleObjectProperty<>();
     private final ObjectProperty<Document> document = new SimpleObjectProperty<>();
-    private final ObservableObjectValue<Document> observableObjectValue = new SimpleObjectProperty<>();
+    //private final ObservableObjectValue<Document> observableObjectValue = new SimpleObjectProperty<>();
     private final StringProperty path = new SimpleStringProperty();
 
     private final ObjectProperty<Bookmark> bookmark = new SimpleObjectProperty<>();
@@ -39,14 +39,14 @@ public class MainViewModel {
 
     public void onSave() {
         if (getBookmark() == null) throw new IllegalStateException();
-        Document document1 = mainModel.onSave(getBookmark());
+        Document document1 = mainModel.onSave(getBookmark(), getOpenFile());
         documentProperty().set(document1);
     }
 
     public String onOpen(Stage stage) throws IOException {
         FileView fileView = new FileView();
         File openfile = fileView.showOpenDialog(stage);
-        //openFileProperty().set(openfile);
+        openFileProperty().set(openfile);
         String context = mainModel.onOpen(openfile.getAbsolutePath());
         contextProperty().set(context);
         return context;

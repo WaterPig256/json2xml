@@ -6,6 +6,9 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * {@link ..\\res\\catalog_demo.xml }
@@ -13,14 +16,15 @@ import javax.xml.parsers.ParserConfigurationException;
  * XML目录文件的生成器。
  */
 public class XMLBuilder {
+    private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss");
     private final DocumentBuilderFactory mFactory = DocumentBuilderFactory.newInstance();
     private final Element docMarkElement;//文档书签
     //private final List<Bookmark> list;
     private Document mDoc;
-    private Bookmark bookmark;
+    private final File openFile;
 
-    public XMLBuilder(Bookmark bookmark) {
-        this.bookmark = bookmark;
+    public XMLBuilder(File openFile) {
+        this.openFile = openFile;
         //this.list = list;
         init();
         Element rootElement = createRootElement();
@@ -30,7 +34,7 @@ public class XMLBuilder {
         rootElement.appendChild(docMarkElement);
     }
 
-    public Document build() {
+    public Document build(Bookmark bookmark) {
         createTree(bookmark, docMarkElement);
         return mDoc;
     }
@@ -60,10 +64,11 @@ public class XMLBuilder {
         Element rootElement = mDoc.createElement(XCatalog.Doc.ELEMENT_NAME);
         rootElement.setAttribute("程序名称", "PDFPatcher");
         rootElement.setAttribute("程序版本", "0.3.3");
-//        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
+        String time = now.format(timeFormatter);
 //        rootElement.setAttribute("导出时间", DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).format(now));
-        rootElement.setAttribute("导出时间", "2024年01月12日 21:22:30");
-        rootElement.setAttribute("PDF文件位置", "C:\\Users\\wchen\\Desktop\\概率论与数理统计 第五版_2.pdf");
+        rootElement.setAttribute("导出时间", time);
+        rootElement.setAttribute("PDF文件位置", openFile.getAbsolutePath());
         return rootElement;
     }
 

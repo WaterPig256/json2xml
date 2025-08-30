@@ -14,12 +14,8 @@ public final class Bookmark {
         this.subCatalog = subCatalog;
     }
 
-    public Bookmark() {
-        this(null, null, null);
-    }
-
     public boolean hasChildren() {
-        return subCatalog != null;
+        return !subCatalog.isEmpty();
     }
 
     public void setPage(String page) {

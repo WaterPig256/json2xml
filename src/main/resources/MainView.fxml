@@ -11,7 +11,7 @@
          <Button layoutX="193.0" layoutY="68.0" mnemonicParsing="false" onAction="#onShow" prefHeight="49.0" prefWidth="83.0" text="Show" />
          <Button layoutX="104.0" layoutY="145.0" mnemonicParsing="false" onAction="#onProcess" prefHeight="49.0" prefWidth="83.0" text="Process" />
          <Button layoutX="193.0" layoutY="145.0" mnemonicParsing="false" onAction="#onSave" prefHeight="49.0" prefWidth="83.0" text="Save" />
-       <Button layoutX="14.0" layoutY="206.0" mnemonicParsing="false" onAction="#onCorrectPage" prefHeight="50.0" prefWidth="83.0" text="Button" />
+       <Button layoutX="14.0" layoutY="206.0" mnemonicParsing="false" onAction="#onCorrectPage" prefHeight="50.0" prefWidth="83.0" text="PageOffset" />
       </AnchorPane>
    </center>
    <right>

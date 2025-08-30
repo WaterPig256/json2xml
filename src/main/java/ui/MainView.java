@@ -48,11 +48,8 @@ public class MainView implements Initializable {
     public TextArea console;
     @FXML
     public AnchorPane mainView;
-    Bookmark bookmark;
     //private FileViewModel holder;
-    private Scene scene;
     private Stage stage;
-        DialogPane dialogPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -93,8 +90,6 @@ public class MainView implements Initializable {
 
     @FXML
     public void onProcess(ActionEvent actionEvent) {
-
-
         console.setText("开始处理");
 
         try {
