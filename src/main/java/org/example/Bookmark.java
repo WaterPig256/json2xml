@@ -1,12 +1,13 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public final class Bookmark {
     private final String title;
-    private String page;
     private final List<Bookmark> subCatalog;
+    private String page;
 
     public Bookmark(String title, String page, List<Bookmark> subCatalog) {
         this.title = title;
@@ -14,12 +15,12 @@ public final class Bookmark {
         this.subCatalog = subCatalog;
     }
 
-    public boolean hasChildren() {
-        return !subCatalog.isEmpty();
+    public Bookmark() {
+        this("", "", new ArrayList<>());
     }
 
-    public void setPage(String page) {
-        this.page = page;
+    public boolean hasChildren() {
+        return !subCatalog.isEmpty();
     }
 
     public String title() {
@@ -55,6 +56,10 @@ public final class Bookmark {
                 "title=" + title + ", " +
                 "page=" + page + ", " +
                 "subCatalog=" + subCatalog + ']';
+    }
+
+    public void setPage(String page) {
+        this.page = page;
     }
 
 }

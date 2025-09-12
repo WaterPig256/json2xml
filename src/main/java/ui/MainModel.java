@@ -24,6 +24,7 @@ public class MainModel {
         JsonParser jsonParser = new JsonParser();
         Bookmark bookmark = jsonParser.parse(context);
         onFix(bookmark);
+
         return bookmark;
     }
 

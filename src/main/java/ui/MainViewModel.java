@@ -1,7 +1,6 @@
 package ui;
 
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.stage.Stage;
 import org.example.Bookmark;
 import org.w3c.dom.Document;
@@ -46,8 +45,16 @@ public class MainViewModel {
     public String onOpen(Stage stage) throws IOException {
         FileView fileView = new FileView();
         File openfile = fileView.showOpenDialog(stage);
+        if (openfile == null) return null;
         openFileProperty().set(openfile);
         String context = mainModel.onOpen(openfile.getAbsolutePath());
+        contextProperty().set(context);
+        return context;
+    }
+
+    public String onDragOpen(File file) throws IOException {
+        openFileProperty().set(file);
+        String context = mainModel.onOpen(file.getAbsolutePath());
         contextProperty().set(context);
         return context;
     }

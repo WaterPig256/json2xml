@@ -1,24 +1,31 @@
 package ui;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.example.Bookmark;
 import org.example.Tree;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainView implements Initializable {
+    private static final MainViewModel mainViewModel = new MainViewModel();
+
     public static final EventType<Event> OUT_PUT = new EventType<>(Event.ANY, "SAVE");
     public static final EventHandler<Event> OUT_PUT_HANDLER = event -> {
         System.out.println("saved");
@@ -26,7 +33,6 @@ public class MainView implements Initializable {
 //        DocIO.write(document);
     };
     public static final EventType<Event> NEED_OUT_PUT = new EventType<>(Event.ANY, "NEED_OUT_PUT");
-    private static final MainViewModel mainViewModel = new MainViewModel();
     public static final EventHandler<Event> NEED_OUT_PUT_HANDLE = event -> {
         int fileState = mainViewModel.getFileState();
         if (fileState == FileViewModel.PROCESSED) {
@@ -48,6 +54,8 @@ public class MainView implements Initializable {
     public TextArea console;
     @FXML
     public AnchorPane mainView;
+    @FXML
+    public ListView<Bookmark> listView;
     //private FileViewModel holder;
     private Stage stage;
 
@@ -64,6 +72,26 @@ public class MainView implements Initializable {
 //
 //        dialogPane.setContentText("Abc");
 //        mainView.getChildren().add(dialogPane);
+        listView.getItems().add(new Bookmark("1", "1", null));
+        listView.getItems().add(new Bookmark("2", "1", null));
+        listView.getItems().add(new Bookmark("3", "1", null));
+        listView.getSelectionModel().selectedItemProperty().addListener(new InvalidationListener() {
+                                                                            @Override
+                                                                            public void invalidated(Observable observable) {
+                                                                                System.out.println(observable);
+                                                                            }
+                                                                        }
+
+
+//                new ChangeListener<Bookmark>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Bookmark> observable, Bookmark oldValue, Bookmark newValue) {
+//                System.out.println(oldValue);
+//            }
+//        }
+        );
+
+        listView.getSelectionModel().selectedItemProperty();
     }
 
     @FXML
@@ -90,6 +118,15 @@ public class MainView implements Initializable {
 
     @FXML
     public void onProcess(ActionEvent actionEvent) {
+        String text = pageOffset.getText();
+        if (text.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Page Offset 为空，是否继续处理？");
+            Optional<ButtonType> type = alert.showAndWait();
+            if (type.get() == ButtonType.CANCEL) {
+                return;
+            }
+        }
+
         console.setText("开始处理");
 
         try {
@@ -122,4 +159,32 @@ public class MainView implements Initializable {
         mainViewModel.onCorrectPage(Integer.parseInt(text));
     }
 
+    @FXML
+    public void onDragOpen(DragEvent dragEvent) {
+        List<File> files = dragEvent.getDragboard().getFiles();
+        File file = files.getFirst();
+        try {
+            String context = mainViewModel.onDragOpen(file);
+            console.setText(context);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void onDragDone(DragEvent dragEvent) {
+
+        dragEvent.setDropCompleted(true);
+        dragEvent.consume();
+    }
+
+    public void onDragEntered(DragEvent dragEvent) {
+        System.out.println("on Drag Entered");
+
+    }
+
+    public void onDragOver(DragEvent dragEvent) {
+        System.out.println("on Drag Over");
+        dragEvent.acceptTransferModes(TransferMode.ANY);
+        dragEvent.consume();
+    }
 }

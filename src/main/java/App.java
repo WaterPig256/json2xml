@@ -1,18 +1,18 @@
 import javafx.application.Application;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.DragEvent;
 import javafx.stage.Stage;
 import ui.MainView;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class App extends Application {
-    MainView mainView;
+    //MainView mainView;
     Parent root = null;
 
     public static void main(String[] args) {
@@ -32,6 +32,12 @@ public class App extends Application {
             throw new RuntimeException(e);
         }
         Scene scene = new Scene(root);
+        scene.setOnDragDone(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                System.out.println("scene sout");
+            }
+        });
         stage.setScene(scene);
         stage.show();
         //if (mainView == null) System.out.println("main == null");
@@ -39,7 +45,7 @@ public class App extends Application {
 
     @Override
     public void stop() throws Exception {
-            root.fireEvent(new Event(MainView.NEED_OUT_PUT));
+        root.fireEvent(new Event(MainView.NEED_OUT_PUT));
 //        try {
 //        } catch (RuntimeException e) {
 //            root.fireEvent(new Event(MainView.OUT_PUT));
