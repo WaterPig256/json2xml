@@ -32,12 +32,7 @@ public class App extends Application {
             throw new RuntimeException(e);
         }
         Scene scene = new Scene(root);
-        scene.setOnDragDone(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                System.out.println("scene sout");
-            }
-        });
+
         stage.setScene(scene);
         stage.show();
         //if (mainView == null) System.out.println("main == null");

@@ -17,6 +17,6 @@
       </AnchorPane>
    </center>
    <right>
-      <TextArea fx:id="console" onDragOver="#onDragOver" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" prefHeight="517.0" prefWidth="449.0" BorderPane.alignment="CENTER" />
+      <TextArea fx:id="console" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" onDragOver="#onDragOver" prefHeight="517.0" prefWidth="449.0" promptText="Drop File to Open" BorderPane.alignment="CENTER" />
    </right><!---->
 </BorderPane>
