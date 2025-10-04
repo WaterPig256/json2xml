@@ -1,113 +1,125 @@
 package ui;
 
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.example.Bookmark;
+import org.example.FileInfo;
 import org.w3c.dom.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class MainViewModel {
+    private final ObjectProperty<FileInfo> selected = new SimpleObjectProperty<>();
+    public final ChangeListener<FileInfo> changeListener = (observable, oldValue, newValue) -> {
+        selected.set(oldValue);
+    };
     private final MainModel mainModel = new MainModel();
+    private final ObservableList<FileInfo> list = FXCollections.observableArrayList();
 
-    private final ObjectProperty<String> context = new SimpleObjectProperty<>();
-    private final ObjectProperty<Document> document = new SimpleObjectProperty<>();
-    //private final ObservableObjectValue<Document> observableObjectValue = new SimpleObjectProperty<>();
-    private final StringProperty path = new SimpleStringProperty();
-
-    private final ObjectProperty<Bookmark> bookmark = new SimpleObjectProperty<>();
-    private final ObjectProperty<File> openFile = new SimpleObjectProperty<>();
-    private final IntegerProperty offset = new SimpleIntegerProperty();
-
-    public IntegerProperty offsetProperty() {
-        return offset;
-    }
-
-    public ObjectProperty<Document> documentProperty() {
-        //document.bindBidirectional(observableObjectValue);
-        return document;
+    public ObjectProperty<FileInfo> selectedProperty() {
+        return selected;
     }
 
     public void onProcess() throws IllegalStateException, IOException {
-        if (getContext() == null) throw new IllegalStateException();
-        Bookmark bookmark1 = mainModel.onProcess(getContext());
-        bookmarkProperty().set(bookmark1);
+        FileInfo fileInfo = getSelected();
+        Bookmark bookmark1 = mainModel.onProcess(fileInfo.getContext());
+        fileInfo.setBookmark(bookmark1);
+        //bookmarkProperty().set(bookmark1);
         //bookmarkProperty().setValue(bookmark1);
     }
 
-    public void onSave() {
-        if (getBookmark() == null) throw new IllegalStateException();
-        Document document1 = mainModel.onSave(getBookmark(), getOpenFile());
-        documentProperty().set(document1);
+    public String onSave() {
+        FileInfo fileInfo = getSelected();
+        Document document1 = mainModel.onSave(fileInfo.getBookmark(), fileInfo.getOpenFile());
+        fileInfo.setDocument(document1);
+        return fileInfo.getOpenFile().getParent();
+    }
+
+    public void onSaveAll() throws IllegalStateException {
+        if(list.isEmpty()) throw new IllegalStateException("List is empty.");
+
+        for (FileInfo fileInfo : list) {
+            if (fileInfo.getFileState() == FileInfo.CLOSE || fileInfo.getFileState() == FileInfo.OPEN) continue;
+            //if (fileInfo.getFileState() == FileInfo.PROCESSED) {
+            Document document1 = mainModel.onSave(fileInfo.getBookmark(), fileInfo.getOpenFile());
+            fileInfo.setDocument(document1);
+            //} else {
+            // file has state : modify / unmodified.
+            //}
+
+        }
     }
 
     public String onOpen(Stage stage) throws IOException {
         FileView fileView = new FileView();
         File openfile = fileView.showOpenDialog(stage);
         if (openfile == null) return null;
-        openFileProperty().set(openfile);
+        FileInfo fileInfo = new FileInfo(openfile);
+
         String context = mainModel.onOpen(openfile.getAbsolutePath());
-        contextProperty().set(context);
+
+        fileInfo.setContext(context);
+        list.add(fileInfo);
         return context;
     }
 
+    /**
+     * Drag File to open
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public String onDragOpen(File file) throws IOException {
-        openFileProperty().set(file);
+        FileInfo fileInfo = new FileInfo(file);
         String context = mainModel.onOpen(file.getAbsolutePath());
-        contextProperty().set(context);
-        return context;
-    }
-
-    public StringProperty pathProperty() {
-        return path;
-    }
-
-    public ObjectProperty<Bookmark> bookmarkProperty() {
-        return bookmark;
-    }
-
-    public ObjectProperty<File> openFileProperty() {
-        return openFile;
-    }
-
-    public ObjectProperty<String> contextProperty() {
+        list.add(fileInfo);
+        fileInfo.setContext(context);
         return context;
     }
 
     public void onCorrectPage(int offset) {
-        this.offset.set(offset);
-        Bookmark bookmark1 = getBookmark();
+        getSelected().setOffset(offset);
+        Bookmark bookmark1 = getSelected().getBookmark();
         mainModel.onCorrectPage(bookmark1, offset);
     }
 
-    public int getOffset() {
-        return offset.get();
+    public void onCreateNew() throws IOException {
+        FileInfo fileInfo = new FileInfo();
+        list.add(fileInfo);
     }
 
-    public Document getDocument() {
-        return document.get();
+    private void updateList(File file, String context) {
+
     }
 
-    public String getPath() {
-        return path.get();
+    public FileInfo getSelected() {
+        if (selected.get() == null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setHeaderText("Select a List item");
+            Optional<ButtonType> type = alert.showAndWait();
+            throw new IllegalStateException(getClass().getName());
+        }
+        return selected.get();
     }
 
-    public Bookmark getBookmark() {
-        return bookmark.get();
-    }
-
-    public File getOpenFile() {
-        return openFile.get();
-    }
-
-    public int getFileState() {
-        FileViewModel fileViewModel = FileViewModel.newInstance();
-        int fileState = fileViewModel.getFileState();
+    public int getFilesState() {
+        int fileState = 0;
+        for (FileInfo fileInfo : list) {
+            fileState |= fileInfo.getFileState();
+        }
         return fileState;
     }
 
-    public String getContext() {
-        return context.get();
+    public ObservableList<FileInfo> getList() {
+        return list;
     }
 }

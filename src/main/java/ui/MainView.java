@@ -1,21 +1,23 @@
 package ui;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import org.example.Bookmark;
+import org.example.FileInfo;
 import org.example.Tree;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -24,17 +26,19 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainView implements Initializable {
+    public static final EventType<Event> OUT_PUT = new EventType<>(Event.ANY, "SAVE");
+    public static final EventType<Event> NEED_OUT_PUT = new EventType<>(Event.ANY, "NEED_OUT_PUT");
     private static final MainViewModel mainViewModel = new MainViewModel();
 
-    public static final EventType<Event> OUT_PUT = new EventType<>(Event.ANY, "SAVE");
     public static final EventHandler<Event> OUT_PUT_HANDLER = event -> {
         System.out.println("saved");
+        mainViewModel.onSaveAll();
 //        Document document = mainViewModel.getDocument();
 //        DocIO.write(document);
     };
-    public static final EventType<Event> NEED_OUT_PUT = new EventType<>(Event.ANY, "NEED_OUT_PUT");
     public static final EventHandler<Event> NEED_OUT_PUT_HANDLE = event -> {
-        int fileState = mainViewModel.getFileState();
+        int fileState = mainViewModel.getFilesState();
+        //mainViewModel.getFileState();
         if (fileState == FileViewModel.PROCESSED) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setHeaderText("文件未保存");
@@ -55,7 +59,8 @@ public class MainView implements Initializable {
     @FXML
     public AnchorPane mainView;
     @FXML
-    public ListView<Bookmark> listView;
+    public ListView<FileInfo> listView;
+    public Hyperlink hyperLink;
     //private FileViewModel holder;
     private Stage stage;
 
@@ -66,32 +71,15 @@ public class MainView implements Initializable {
 //        };
 //        //alert.addEventHandler(DocIO.SaveEvent.OUT_PUT, eventHandler);
 //        mainView.addEventHandler(DocIO.SaveEvent.OUT_PUT, eventHandler);
-        //holder = FileViewModel.newInstance();
-        //open.setVisible(false);
-//        dialogPane = new DialogPane();
-//
-//        dialogPane.setContentText("Abc");
-//        mainView.getChildren().add(dialogPane);
-        listView.getItems().add(new Bookmark("1", "1", null));
-        listView.getItems().add(new Bookmark("2", "1", null));
-        listView.getItems().add(new Bookmark("3", "1", null));
-        listView.getSelectionModel().selectedItemProperty().addListener(new InvalidationListener() {
-                                                                            @Override
-                                                                            public void invalidated(Observable observable) {
-                                                                                System.out.println(observable);
-                                                                            }
-                                                                        }
 
+        listView.setItems(mainViewModel.getList());
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            //System.out.println(oldValue.getOpenFile());
+            mainViewModel.selectedProperty().set(newValue);
+        });
+        //listView.getSelectionModel().getSelectedItem();
 
-//                new ChangeListener<Bookmark>() {
-//            @Override
-//            public void changed(ObservableValue<? extends Bookmark> observable, Bookmark oldValue, Bookmark newValue) {
-//                System.out.println(oldValue);
-//            }
-//        }
-        );
-
-        listView.getSelectionModel().selectedItemProperty();
+        //listView.getSelectionModel().selectedItemProperty();
     }
 
     @FXML
@@ -99,6 +87,7 @@ public class MainView implements Initializable {
         try {
             String context = mainViewModel.onOpen(stage);
             console.setText(context);
+            //listView.getItems().add(new Bookmark(mainViewModel.getOpenFile().getName(), "", new ArrayList<>()));
         } catch (IOException e) {
             console.setText("读取失败");
             throw new RuntimeException(e);
@@ -108,11 +97,12 @@ public class MainView implements Initializable {
     @FXML
     public void onShow(ActionEvent actionEvent) {
         Tree tree = new Tree();
-        if (mainViewModel.getBookmark() != null) {
-            String treeContext = tree.show(mainViewModel.getBookmark(), new StringBuilder());
+        if (mainViewModel.getSelected().getBookmark() != null) {
+            String treeContext = tree.show(mainViewModel.getSelected().getBookmark(), new StringBuilder());
             console.setText(treeContext);
         } else {
-            System.out.println("请选择处理的文件");
+            hyperLink.setText("请选择处理的文件");
+            System.out.println("");
         }
     }
 
@@ -143,8 +133,16 @@ public class MainView implements Initializable {
 
     public void onSave(ActionEvent actionEvent) {
         try {
-            mainViewModel.onSave();
-            console.setText("保存成功！");
+            String savePath = mainViewModel.onSave();
+            console.setText("保存成功！\n");
+            hyperLink.setText(savePath);
+//            hyperLink.setOnAction(event -> {
+//
+////                    DirectoryChooser directoryChooser = new DirectoryChooser();
+////                    directoryChooser.setInitialDirectory(mainViewModel.getOpenFile());
+////                    directoryChooser.showDialog(stage);
+//            });
+            //console.appendText("保存路径：" + );
         } catch (IllegalStateException e) {
             console.setText("未进行处理就保存。");
         }
@@ -186,5 +184,42 @@ public class MainView implements Initializable {
         System.out.println("on Drag Over");
         dragEvent.acceptTransferModes(TransferMode.ANY);
         dragEvent.consume();
+    }
+
+    public void onCreateNew(ActionEvent actionEvent) {
+        try {
+            mainViewModel.onCreateNew();
+
+            console.setText("");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 超链接打开文档
+     *
+     * @param actionEvent
+     */
+    @FXML
+    public void onWindowOpen(ActionEvent actionEvent) {
+        try {
+            Desktop.getDesktop().open(new File(mainViewModel.getSelected().getOpenFile().getParent()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Menu button,
+     *
+     * @param actionEvent
+     */
+    public void onSaveAll(ActionEvent actionEvent) {
+        try {
+            mainViewModel.onSaveAll();
+        } catch (IllegalStateException e) {
+            console.setText("未打开任何文件");
+        }
     }
 }

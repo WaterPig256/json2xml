@@ -1,9 +1,6 @@
 package ui;
 
-import org.example.Bookmark;
-import org.example.DocIO;
-import org.example.JsonParser;
-import org.example.XMLBuilder;
+import org.example.*;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -14,9 +11,9 @@ import java.util.List;
 
 public class MainModel {
     public Document onSave(Bookmark bookmark, File openFile) {
-        XMLBuilder xmlBuilder = new XMLBuilder(openFile);
-        Document document = xmlBuilder.build(bookmark);
-        DocIO.write(document);
+        XMLBuilder xmlBuilder = new XMLBuilder();
+        Document document = xmlBuilder.build(bookmark, openFile.getAbsolutePath());
+        DocIO.write(document, openFile.getAbsolutePath());
         return document;
     }
 

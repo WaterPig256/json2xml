@@ -3,20 +3,43 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="541.0" prefWidth="764.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainView">
-   <center>
-      <AnchorPane fx:id="mainView" prefHeight="533.0" prefWidth="315.0">
-          <Button fx:id="open" layoutX="14.0" layoutY="145.0" mnemonicParsing="false" onAction="#onOpen" prefHeight="49.0" prefWidth="83.0" text="Open" />
-         <TextField fx:id="pageOffset" layoutX="14.0" layoutY="22.0" prefHeight="28.0" prefWidth="179.0" />
-         <Button layoutX="193.0" layoutY="68.0" mnemonicParsing="false" onAction="#onShow" prefHeight="49.0" prefWidth="83.0" text="Show" />
-         <Button layoutX="104.0" layoutY="145.0" mnemonicParsing="false" onAction="#onProcess" prefHeight="49.0" prefWidth="83.0" text="Process" />
-         <Button layoutX="193.0" layoutY="145.0" mnemonicParsing="false" onAction="#onSave" prefHeight="49.0" prefWidth="83.0" text="Save" />
-       <Button layoutX="14.0" layoutY="206.0" mnemonicParsing="false" onAction="#onCorrectPage" prefHeight="50.0" prefWidth="83.0" text="PageOffset" />
-         <ListView fx:id="listView" layoutX="-1.0" layoutY="275.0" prefHeight="265.0" prefWidth="317.0" />
-         <ToggleButton layoutX="110.0" layoutY="220.0" mnemonicParsing="false" text="ToggleButton" />
-      </AnchorPane>
-   </center>
-   <right>
-      <TextArea fx:id="console" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" onDragOver="#onDragOver" prefHeight="517.0" prefWidth="449.0" promptText="Drop File to Open" BorderPane.alignment="CENTER" />
-   </right><!---->
+<BorderPane prefHeight="662.0" prefWidth="918.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainView">
+    <right>
+        <TextArea fx:id="console" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" onDragOver="#onDragOver" prefHeight="662.0" prefWidth="408.0" promptText="Drop File to Open" BorderPane.alignment="CENTER" />
+    </right>
+    <left>
+        <AnchorPane fx:id="mainView" prefHeight="601.0" prefWidth="293.0" BorderPane.alignment="CENTER">
+            <TextField fx:id="pageOffset" layoutX="14.0" layoutY="22.0" prefHeight="28.0" prefWidth="179.0" />
+            <Button layoutX="193.0" layoutY="145.0" mnemonicParsing="false" onAction="#onShow" prefHeight="49.0" prefWidth="83.0" text="Show" />
+            <Button layoutX="104.0" layoutY="145.0" mnemonicParsing="false" onAction="#onProcess" prefHeight="49.0" prefWidth="83.0" text="Process" />
+            <Button layoutX="14.0" layoutY="145.0" mnemonicParsing="false" onAction="#onCorrectPage" prefHeight="50.0" prefWidth="83.0" text="PageOffset" />
+            <ToggleButton layoutX="110.0" layoutY="220.0" mnemonicParsing="false" text="ToggleButton" />
+        </AnchorPane>
+    </left>
+    <center>
+        <ListView fx:id="listView" prefHeight="601.0" prefWidth="235.0" />
+    </center>
+    <bottom>
+        <AnchorPane BorderPane.alignment="CENTER">
+            <children>
+                <Hyperlink fx:id="hyperLink" layoutX="83.0" onAction="#onWindowOpen" prefHeight="21.0" prefWidth="752.0" />
+                <Label layoutX="12.0" layoutY="3.0" prefHeight="17.0" prefWidth="65.0" text="保存路径" />
+            </children>
+        </AnchorPane>
+    </bottom>
+    <top>
+        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <items>
+                <MenuButton mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#onCreateNew" text="New" />
+                  <MenuItem mnemonicParsing="false" onAction="#onOpen" text="Open" />
+                        <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
+                        <MenuItem mnemonicParsing="false" onAction="#onSaveAll" text="Save All" />
+                    </items>
+                </MenuButton>
+
+            </items>
+        </ToolBar>
+    </top><!---->
 </BorderPane>

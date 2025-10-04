@@ -16,11 +16,11 @@ public class DocIO {
     private static final TransformerFactory factory = TransformerFactory.newInstance();
 
 
-    public static void write(Document document) {
+    public static void write(Document document, String openFilePath) {
         try {
             Transformer transformer = factory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.transform(new DOMSource(document), new StreamResult(check()));
+            transformer.transform(new DOMSource(document), new StreamResult(new File(openFilePath + ".xml")));
         } catch (TransformerException e) {
             throw new RuntimeException(e);
         }

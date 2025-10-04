@@ -21,10 +21,10 @@ public class XMLBuilder {
     private final Element docMarkElement;//文档书签
     //private final List<Bookmark> list;
     private Document mDoc;
-    private final File openFile;
+    private String path;
+    //private FileInfo fileInfo;
 
-    public XMLBuilder(File openFile) {
-        this.openFile = openFile;
+    public XMLBuilder() {
         //this.list = list;
         init();
         Element rootElement = createRootElement();
@@ -34,7 +34,8 @@ public class XMLBuilder {
         rootElement.appendChild(docMarkElement);
     }
 
-    public Document build(Bookmark bookmark) {
+    public Document build(Bookmark bookmark, String path) {
+        this.path = path;
         createTree(bookmark, docMarkElement);
         return mDoc;
     }
@@ -68,7 +69,7 @@ public class XMLBuilder {
         String time = now.format(timeFormatter);
 //        rootElement.setAttribute("导出时间", DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).format(now));
         rootElement.setAttribute("导出时间", time);
-        rootElement.setAttribute("PDF文件位置", openFile.getAbsolutePath());
+        rootElement.setAttribute("PDF文件位置", path);
         return rootElement;
     }
 
