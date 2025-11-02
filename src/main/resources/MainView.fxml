@@ -4,42 +4,49 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="662.0" prefWidth="918.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainView">
-    <right>
-        <TextArea fx:id="console" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" onDragOver="#onDragOver" prefHeight="662.0" prefWidth="408.0" promptText="Drop File to Open" BorderPane.alignment="CENTER" />
-    </right>
-    <left>
-        <AnchorPane fx:id="mainView" prefHeight="601.0" prefWidth="293.0" BorderPane.alignment="CENTER">
-            <TextField fx:id="pageOffset" layoutX="14.0" layoutY="22.0" prefHeight="28.0" prefWidth="179.0" />
-            <Button layoutX="193.0" layoutY="145.0" mnemonicParsing="false" onAction="#onShow" prefHeight="49.0" prefWidth="83.0" text="Show" />
-            <Button layoutX="104.0" layoutY="145.0" mnemonicParsing="false" onAction="#onProcess" prefHeight="49.0" prefWidth="83.0" text="Process" />
-            <Button layoutX="14.0" layoutY="145.0" mnemonicParsing="false" onAction="#onCorrectPage" prefHeight="50.0" prefWidth="83.0" text="PageOffset" />
-            <ToggleButton layoutX="110.0" layoutY="220.0" mnemonicParsing="false" text="ToggleButton" />
-        </AnchorPane>
-    </left>
-    <center>
-        <ListView fx:id="listView" prefHeight="601.0" prefWidth="235.0" />
-    </center>
     <bottom>
         <AnchorPane BorderPane.alignment="CENTER">
             <children>
-                <Hyperlink fx:id="hyperLink" layoutX="83.0" onAction="#onWindowOpen" prefHeight="21.0" prefWidth="752.0" />
+                <Hyperlink fx:id="hyperLink" layoutX="83.0" onAction="#onWindowOpen" prefHeight="21.0" prefWidth="507.0" />
                 <Label layoutX="12.0" layoutY="3.0" prefHeight="17.0" prefWidth="65.0" text="保存路径" />
+               <TextField fx:id="pageOffset" layoutX="794.0" prefHeight="28.0" prefWidth="179.0" promptText="Page Offset" />
             </children>
         </AnchorPane>
     </bottom>
-    <top>
-        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
             <items>
-                <MenuButton mnemonicParsing="false" text="File">
-                    <items>
                         <MenuItem mnemonicParsing="false" onAction="#onCreateNew" text="New" />
                   <MenuItem mnemonicParsing="false" onAction="#onOpen" text="Open" />
-                        <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
+<!--                        <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />-->
                         <MenuItem mnemonicParsing="false" onAction="#onSaveAll" text="Save All" />
-                    </items>
-                </MenuButton>
-
+              <MenuItem mnemonicParsing="false" text="Close" />
             </items>
-        </ToolBar>
-    </top><!---->
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onUndo" text="Undo" />
+              <MenuItem mnemonicParsing="false" onAction="#onProcessAll" text="Process All" />
+                  <MenuItem mnemonicParsing="false" onAction="#onShow" text="Show" />
+                  <MenuItem mnemonicParsing="false" onAction="#onCorrectPage" text="PageOffset" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.5" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <items>
+              <ListView fx:id="listView" prefHeight="607.0" prefWidth="510.0" />
+              <TextArea fx:id="console" onDragDone="#onDragDone" onDragDropped="#onDragOpen" onDragEntered="#onDragEntered" onDragOver="#onDragOver" prefHeight="581.0" prefWidth="583.0" promptText="Drop File to Open" />
+         </items>
+      </SplitPane>
+   </center><!---->
 </BorderPane>

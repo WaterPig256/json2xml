@@ -7,10 +7,12 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -28,7 +30,7 @@ import java.util.ResourceBundle;
 public class MainView implements Initializable {
     public static final EventType<Event> OUT_PUT = new EventType<>(Event.ANY, "SAVE");
     public static final EventType<Event> NEED_OUT_PUT = new EventType<>(Event.ANY, "NEED_OUT_PUT");
-    private static final MainViewModel mainViewModel = new MainViewModel();
+    static final MainViewModel mainViewModel = new MainViewModel();
 
     public static final EventHandler<Event> OUT_PUT_HANDLER = event -> {
         System.out.println("saved");
@@ -36,6 +38,7 @@ public class MainView implements Initializable {
 //        Document document = mainViewModel.getDocument();
 //        DocIO.write(document);
     };
+
     public static final EventHandler<Event> NEED_OUT_PUT_HANDLE = event -> {
         int fileState = mainViewModel.getFilesState();
         //mainViewModel.getFileState();
@@ -66,20 +69,33 @@ public class MainView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-//        EventHandler<DocIO.SaveEvent> eventHandler = (DocIO.SaveEvent saveEvent) -> {
-//            System.out.println("click");
-//        };
-//        //alert.addEventHandler(DocIO.SaveEvent.OUT_PUT, eventHandler);
-//        mainView.addEventHandler(DocIO.SaveEvent.OUT_PUT, eventHandler);
-
         listView.setItems(mainViewModel.getList());
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             //System.out.println(oldValue.getOpenFile());
-            mainViewModel.selectedProperty().set(newValue);
-        });
-        //listView.getSelectionModel().getSelectedItem();
+            //mainViewModel.selectedProperty().set(newValue);
 
-        //listView.getSelectionModel().selectedItemProperty();
+        });
+
+// 创建菜单
+//        ContextMenu contextMenu = new ContextMenu();
+//        MenuItem deleteMenuItem = new MenuItem("删除");
+//        MenuItem editMenuItem = new MenuItem("编辑");
+//        contextMenu.getItems().addAll(deleteMenuItem, editMenuItem);
+//
+//// 为 ListView 添加鼠标事件监听器
+//        listView.setOnMousePressed(event -> {
+//            if (event.getButton() == MouseButton.SECONDARY) {
+//                // 显示菜单
+//                contextMenu.show(listView, event.getScreenX(), event.getScreenY());
+//
+//                // 获取被点击的列表项数据 (根据你的列表项类型)
+//                FileInfo selectedItem = listView.getSelectionModel().getSelectedItem();
+//                // 在这里可以根据 selectedItem 进行相应的处理，例如更新 menu item 的可用性
+//            }
+//        });
+        listView.setCellFactory((ListView<FileInfo> fileInfoListView) -> {return new MyListCell2();});
+
+        //console.textProperty().bind(mainViewModel.consoleProperty());
     }
 
     @FXML
@@ -89,6 +105,7 @@ public class MainView implements Initializable {
             console.setText(context);
             //listView.getItems().add(new Bookmark(mainViewModel.getOpenFile().getName(), "", new ArrayList<>()));
         } catch (IOException e) {
+
             console.setText("读取失败");
             throw new RuntimeException(e);
         }
@@ -107,7 +124,7 @@ public class MainView implements Initializable {
     }
 
     @FXML
-    public void onProcess(ActionEvent actionEvent) {
+    public void onProcessAll(ActionEvent actionEvent) {
         String text = pageOffset.getText();
         if (text.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Page Offset 为空，是否继续处理？");
@@ -120,7 +137,8 @@ public class MainView implements Initializable {
         console.setText("开始处理");
 
         try {
-            mainViewModel.onProcess();
+            mainViewModel.onProcessAll();
+            //FileInfo fileInfo = getSelected();
             console.appendText("\n处理成功");
         } catch (IllegalStateException e) {
             console.setText("打开文件为空");
@@ -129,26 +147,6 @@ public class MainView implements Initializable {
             console.setText("处理失败");
             throw new RuntimeException(e);
         }
-    }
-
-    public void onSave(ActionEvent actionEvent) {
-        try {
-            String savePath = mainViewModel.onSave();
-            console.setText("保存成功！\n");
-            hyperLink.setText(savePath);
-//            hyperLink.setOnAction(event -> {
-//
-////                    DirectoryChooser directoryChooser = new DirectoryChooser();
-////                    directoryChooser.setInitialDirectory(mainViewModel.getOpenFile());
-////                    directoryChooser.showDialog(stage);
-//            });
-            //console.appendText("保存路径：" + );
-        } catch (IllegalStateException e) {
-            console.setText("未进行处理就保存。");
-        }
-        //mainViewModel.documentProperty().set(document);
-        //DocIO x2 = new DocIO();
-        //DocIO.write(document);
     }
 
     public void onCorrectPage(ActionEvent actionEvent) {
@@ -170,14 +168,12 @@ public class MainView implements Initializable {
     }
 
     public void onDragDone(DragEvent dragEvent) {
-
         dragEvent.setDropCompleted(true);
         dragEvent.consume();
     }
 
     public void onDragEntered(DragEvent dragEvent) {
         System.out.println("on Drag Entered");
-
     }
 
     public void onDragOver(DragEvent dragEvent) {
@@ -222,4 +218,9 @@ public class MainView implements Initializable {
             console.setText("未打开任何文件");
         }
     }
+
+    public void onUndo(ActionEvent actionEvent) {
+        mainViewModel.onUndo();
+    }
+
 }

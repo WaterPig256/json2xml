@@ -1,6 +1,9 @@
 package ui;
 
-import org.example.*;
+import org.example.Bookmark;
+import org.example.DocIO;
+import org.example.JsonParser;
+import org.example.XMLBuilder;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -17,7 +20,7 @@ public class MainModel {
         return document;
     }
 
-    public Bookmark onProcess(String context) throws RuntimeException, IOException {
+    public Bookmark onProcess(String context) throws IOException {
         JsonParser jsonParser = new JsonParser();
         Bookmark bookmark = jsonParser.parse(context);
         onFix(bookmark);

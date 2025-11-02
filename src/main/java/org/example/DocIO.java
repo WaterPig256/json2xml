@@ -22,6 +22,7 @@ public class DocIO {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(new DOMSource(document), new StreamResult(new File(openFilePath + ".xml")));
         } catch (TransformerException e) {
+
             throw new RuntimeException(e);
         }
     }

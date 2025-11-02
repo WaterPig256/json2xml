@@ -2,9 +2,12 @@ package ui;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -14,37 +17,28 @@ import org.w3c.dom.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EmptyStackException;
 import java.util.Optional;
+import java.util.Stack;
 
 public class MainViewModel {
-    private final ObjectProperty<FileInfo> selected = new SimpleObjectProperty<>();
-    public final ChangeListener<FileInfo> changeListener = (observable, oldValue, newValue) -> {
-        selected.set(oldValue);
+    public static final EventHandler<Event> PROCESSED_HANDLER = event -> {
+        //onProcess();
     };
+
+    private final ObjectProperty<FileInfo> selected = new SimpleObjectProperty<>();
+
     private final MainModel mainModel = new MainModel();
     private final ObservableList<FileInfo> list = FXCollections.observableArrayList();
+    private final StringProperty console = new SimpleStringProperty();
+    private final Stack<FileInfo> garbage = new Stack<>();
 
     public ObjectProperty<FileInfo> selectedProperty() {
         return selected;
     }
 
-    public void onProcess() throws IllegalStateException, IOException {
-        FileInfo fileInfo = getSelected();
-        Bookmark bookmark1 = mainModel.onProcess(fileInfo.getContext());
-        fileInfo.setBookmark(bookmark1);
-        //bookmarkProperty().set(bookmark1);
-        //bookmarkProperty().setValue(bookmark1);
-    }
-
-    public String onSave() {
-        FileInfo fileInfo = getSelected();
-        Document document1 = mainModel.onSave(fileInfo.getBookmark(), fileInfo.getOpenFile());
-        fileInfo.setDocument(document1);
-        return fileInfo.getOpenFile().getParent();
-    }
-
     public void onSaveAll() throws IllegalStateException {
-        if(list.isEmpty()) throw new IllegalStateException("List is empty.");
+        if (list.isEmpty()) throw new IllegalStateException("List is empty.");
 
         for (FileInfo fileInfo : list) {
             if (fileInfo.getFileState() == FileInfo.CLOSE || fileInfo.getFileState() == FileInfo.OPEN) continue;
@@ -97,8 +91,59 @@ public class MainViewModel {
         list.add(fileInfo);
     }
 
-    private void updateList(File file, String context) {
+    public void onProcessAll() throws IOException {
+        for (FileInfo fileInfo : list) {
+            mainModel.onProcess(fileInfo.getContext());
+        }
+    }
 
+    public void onDelete(FileInfo fileInfo) {
+        FileInfo push = garbage.push(fileInfo);
+        //list.removeIf(next -> next.equals(fileInfo));
+        boolean remove = list.remove(fileInfo);
+        System.out.println(remove);
+    }
+
+
+//    public String onSave() {
+//        mainModel.onSave(getSelected().getBookmark(), getSelected().getOpenFile());
+//        return getSelected().getOpenFile().getParent();
+//    }
+
+    public String onSave(FileInfo fileInfo) {
+        Document document1 = mainModel.onSave(fileInfo.getBookmark(), fileInfo.getOpenFile());
+        fileInfo.setDocument(document1);
+        return fileInfo.getOpenFile().getParent();
+    }
+
+    public void onProcess(FileInfo fileInfo) throws IllegalStateException, IOException {
+        //if (fileInfo.getContext().isEmpty()) throw new EmptyContentException("打开文件内容为空");
+
+        Bookmark bookmark1 = mainModel.onProcess(fileInfo.getContext());
+        fileInfo.setBookmark(bookmark1);
+        //bookmarkProperty().set(bookmark1);
+        //bookmarkProperty().setValue(bookmark1);
+    }
+
+    public StringProperty consoleProperty() {
+        return console;
+    }
+
+    public void onUndo() {
+        try {
+            FileInfo pop = garbage.pop();
+            boolean add = list.add(pop);
+            System.out.println(add);
+        } catch (EmptyStackException e) {
+            System.out.println();
+        }
+    }
+
+    private FileInfo getUnSaveItem() {
+        for (FileInfo fileInfo : list) {
+            if (fileInfo.getFileState() != FileInfo.CLOSE) return fileInfo;
+        }
+        return null;
     }
 
     public FileInfo getSelected() {
@@ -121,5 +166,9 @@ public class MainViewModel {
 
     public ObservableList<FileInfo> getList() {
         return list;
+    }
+
+    public String getConsole() {
+        return console.get();
     }
 }
