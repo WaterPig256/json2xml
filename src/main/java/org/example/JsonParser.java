@@ -33,6 +33,7 @@ public class JsonParser {
 
 
     private void judge(JsonNode jsonNode, Bookmark bookmark) {
+
         if (jsonNode.isArray()) {
             for (int i = 0; i < jsonNode.size(); i++) {
                 //try {
@@ -50,8 +51,15 @@ public class JsonParser {
             if (title == null) {
                 throw new IllegalStateException(String.format("Title Null: %s", jsonNode.textValue()));
             }
-            else if (page != null) {
-                pageT = page.textValue();
+            if (page != null) {
+                if (page.isNumber()) {
+                    int int_page = page.intValue();
+                    pageT = String.valueOf(int_page);
+                } else if (page.isNull()) {
+
+                } else if (page.isTextual()){
+                    pageT = page.textValue();
+                }
             } //throw new RuntimeException("Page Null");
 
             //System.out.println(title);
@@ -61,7 +69,7 @@ public class JsonParser {
             if (subCatalog != null && !subCatalog.isEmpty()) {
                 judge(subCatalog, bookmark1);
             }
-
+//            System.out.printf("%s, %s\n", title.textValue(), pageT);
         }
 
     }

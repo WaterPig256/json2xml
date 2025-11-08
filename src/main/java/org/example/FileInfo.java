@@ -4,7 +4,6 @@ import org.example.util.EmptyContentException;
 import org.example.util.NonProcessException;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
-import ui.MyListCellView;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +24,6 @@ public class FileInfo {
      *
      */
     private final File openFile;
-    private MyListCellView myListCellView;
     /**
      * file context
      */
@@ -59,6 +57,8 @@ public class FileInfo {
 
     public FileInfo(@NotNull File openFile) {
         this.openFile = openFile;
+
+        fileState = OPEN;
     }
 
     @Override
@@ -85,12 +85,8 @@ public class FileInfo {
      * @param document
      */
     public void setDocument(Document document) {
-        fileState = document == null ? PROCESSED : CLOSE;
+        fileState = CLOSE;
         this.document = document;
-    }
-
-    public void setMyListCellView(MyListCellView myListCellView) {
-        this.myListCellView = myListCellView;
     }
 
     public File getOpenFile() {
@@ -102,7 +98,7 @@ public class FileInfo {
     }
 
     public String getContext() {
-        if (fileState != OPEN) {
+        if (context == null) {
             throw new IllegalStateException("File Not Open.");
         } else if (context.isEmpty()) {
             throw new EmptyContentException("文件内容为空");
@@ -116,7 +112,6 @@ public class FileInfo {
 //    }
 
     /**
-     *
      * @param context
      */
     @Deprecated
@@ -126,8 +121,10 @@ public class FileInfo {
     }
 
     public Bookmark getBookmark() {
-        if (fileState == PROCESSED) return bookmark;
-        throw new NonProcessException("File Not Processed.");
+//        if (fileState == PROCESSED) return bookmark;
+        if (bookmark == null)
+            throw new NonProcessException("File Not Processed.");
+        return bookmark;
     }
 
     /**
@@ -136,8 +133,22 @@ public class FileInfo {
      * @param bookmark
      */
     public void setBookmark(Bookmark bookmark) {
-        fileState = bookmark == null ? OPEN : PROCESSED;
+        fileState = PROCESSED;
         this.bookmark = bookmark;
+    }
+
+    public void reset(){
+        fileState = OPEN;
+    }
+
+    public void removeDoc(){
+        fileState = PROCESSED;
+        document = null;
+    }
+
+    public void removeBookmark() {
+        fileState = OPEN;
+        bookmark = null;
     }
 
     public int getOffset() {
@@ -148,7 +159,4 @@ public class FileInfo {
         this.offset = offset;
     }
 
-    public MyListCellView getMyListCellView() {
-        return myListCellView;
-    }
 }

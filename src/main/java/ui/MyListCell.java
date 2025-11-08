@@ -9,6 +9,7 @@ import org.example.FileInfo;
 import java.io.IOException;
 import java.util.Objects;
 
+@Deprecated
 public class MyListCell extends ListCell<FileInfo> {
 
     Parent root;

@@ -80,10 +80,8 @@ public class MainViewModel {
         return context;
     }
 
-    public void onCorrectPage(int offset) {
-        getSelected().setOffset(offset);
-        Bookmark bookmark1 = getSelected().getBookmark();
-        mainModel.onCorrectPage(bookmark1, offset);
+    public void onCorrectPage(Bookmark bookmark, int offset) {
+        mainModel.onCorrectPage(bookmark, offset);
     }
 
     public void onCreateNew() throws IOException {
@@ -101,7 +99,6 @@ public class MainViewModel {
         FileInfo push = garbage.push(fileInfo);
         //list.removeIf(next -> next.equals(fileInfo));
         boolean remove = list.remove(fileInfo);
-        System.out.println(remove);
     }
 
 
@@ -129,13 +126,14 @@ public class MainViewModel {
         return console;
     }
 
-    public void onUndo() {
+    public FileInfo onUndo() {
         try {
             FileInfo pop = garbage.pop();
             boolean add = list.add(pop);
             System.out.println(add);
+            return pop;
         } catch (EmptyStackException e) {
-            System.out.println();
+            throw new RuntimeException(e);
         }
     }
 

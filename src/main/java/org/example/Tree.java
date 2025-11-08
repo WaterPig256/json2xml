@@ -7,9 +7,6 @@ public class Tree {
         context.append(blanket);
         context.append(bookmark.title()).append('\t').append(bookmark.page()).append('\n');
 
-        System.out.print(bookmark.title());
-        System.out.print("             ");
-        System.out.println(bookmark.page());
         if (!bookmark.subCatalog().isEmpty()) {
             blanket.append('\t');
             for (Bookmark bookmark1 : bookmark.subCatalog()) {

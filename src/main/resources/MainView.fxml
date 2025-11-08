@@ -30,7 +30,6 @@
                   <MenuItem mnemonicParsing="false" onAction="#onUndo" text="Undo" />
               <MenuItem mnemonicParsing="false" onAction="#onProcessAll" text="Process All" />
                   <MenuItem mnemonicParsing="false" onAction="#onShow" text="Show" />
-                  <MenuItem mnemonicParsing="false" onAction="#onCorrectPage" text="PageOffset" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

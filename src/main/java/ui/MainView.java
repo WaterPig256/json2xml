@@ -7,17 +7,19 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.example.FileInfo;
 import org.example.Tree;
+import org.example.util.EmptyContentException;
+import org.example.util.NonProcessException;
 
 import java.awt.*;
 import java.io.File;
@@ -76,23 +78,6 @@ public class MainView implements Initializable {
 
         });
 
-// 创建菜单
-//        ContextMenu contextMenu = new ContextMenu();
-//        MenuItem deleteMenuItem = new MenuItem("删除");
-//        MenuItem editMenuItem = new MenuItem("编辑");
-//        contextMenu.getItems().addAll(deleteMenuItem, editMenuItem);
-//
-//// 为 ListView 添加鼠标事件监听器
-//        listView.setOnMousePressed(event -> {
-//            if (event.getButton() == MouseButton.SECONDARY) {
-//                // 显示菜单
-//                contextMenu.show(listView, event.getScreenX(), event.getScreenY());
-//
-//                // 获取被点击的列表项数据 (根据你的列表项类型)
-//                FileInfo selectedItem = listView.getSelectionModel().getSelectedItem();
-//                // 在这里可以根据 selectedItem 进行相应的处理，例如更新 menu item 的可用性
-//            }
-//        });
         listView.setCellFactory((ListView<FileInfo> fileInfoListView) -> {return new MyListCell2();});
 
         //console.textProperty().bind(mainViewModel.consoleProperty());
@@ -119,7 +104,6 @@ public class MainView implements Initializable {
             console.setText(treeContext);
         } else {
             hyperLink.setText("请选择处理的文件");
-            System.out.println("");
         }
     }
 
@@ -148,12 +132,12 @@ public class MainView implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
-    public void onCorrectPage(ActionEvent actionEvent) {
-        String text = pageOffset.getText();
-        if (text.isEmpty()) text = "0";
-        mainViewModel.onCorrectPage(Integer.parseInt(text));
-    }
+//
+//    public void onCorrectPage(ActionEvent actionEvent) {
+//        String text = pageOffset.getText();
+//        if (text.isEmpty()) text = "0";
+//        mainViewModel.onCorrectPage(Integer.parseInt(text));
+//    }
 
     @FXML
     public void onDragOpen(DragEvent dragEvent) {
@@ -173,11 +157,9 @@ public class MainView implements Initializable {
     }
 
     public void onDragEntered(DragEvent dragEvent) {
-        System.out.println("on Drag Entered");
     }
 
     public void onDragOver(DragEvent dragEvent) {
-        System.out.println("on Drag Over");
         dragEvent.acceptTransferModes(TransferMode.ANY);
         dragEvent.consume();
     }
@@ -220,7 +202,144 @@ public class MainView implements Initializable {
     }
 
     public void onUndo(ActionEvent actionEvent) {
-        mainViewModel.onUndo();
+        FileInfo pop = mainViewModel.onUndo();
+        listView.getSelectionModel().select(pop);
+    }
+
+
+    public class MyListCell2 extends ListCell<FileInfo> {
+
+        static final Alert emptyContextAlert = new Alert(Alert.AlertType.CONFIRMATION, "文件未打开");
+        static final Alert nonProcessAlert = new Alert(Alert.AlertType.CONFIRMATION, "内容未处理");
+        //private static final MainViewModel mainViewModel = MainView.mainViewModel;
+        static MenuItem openMenuItem = new MenuItem("打开文件所在目录");
+        static MenuItem showJsonItem = new MenuItem("查看JSON结构");
+        static MenuItem showBookmarkItem = new MenuItem("查看树形结构");
+        static MenuItem showXmlItem = new MenuItem("查看xml结构");
+        static MenuItem deleteMenuItem = new MenuItem("删除");
+        static MenuItem pageOffset = new MenuItem("页码偏移");
+
+        static MenuItem removeDoc = new MenuItem("移除XML结构");
+        static MenuItem removeBookmark = new MenuItem("移除Bookmark结构");
+
+        static ContextMenu contextMenu = new ContextMenu(deleteMenuItem, openMenuItem, showJsonItem, showBookmarkItem, showXmlItem, pageOffset);
+
+        static {
+            //contextMenu.getItems().addAll();
+
+        }
+
+        CheckBox context = new CheckBox("context");
+        CheckBox bookmark = new CheckBox("bookmark");
+        CheckBox document = new CheckBox("document");
+        Button generate = new Button("解析并生成");
+        Button save = new Button("保存");
+        Label fileName = new Label();
+        AnchorPane root = new AnchorPane(fileName, context, bookmark, document, generate);
+        private FileInfo fileInfo;
+
+        public MyListCell2() {
+            context.setLayoutX(119.0);
+            bookmark.setLayoutX(200.0);
+            document.setLayoutX(290.0);
+            generate.setLayoutX(400.0);
+            root.setOnContextMenuRequested(event -> contextMenu.show(root, event.getScreenX(), event.getScreenY()));
+        }
+
+        public void initialize() {
+
+
+            deleteMenuItem.setOnAction(event -> {
+                //System.out.println("1");
+                mainViewModel.onDelete(fileInfo);
+            });
+
+            openMenuItem.setOnAction(event -> {
+                try {
+                    Desktop.getDesktop().open(new File(fileInfo.getOpenFile().getParent()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            showJsonItem.setOnAction(event -> {
+                System.out.println("111");
+                console.setText(fileInfo.getContext());
+            });
+
+            showBookmarkItem.setOnAction(event -> {
+                Tree tree = new Tree();
+                String show = tree.show(fileInfo.getBookmark(), new StringBuilder());
+                console.setText(show);
+            });
+
+            showXmlItem.setOnAction(event -> {
+
+            });
+
+            pageOffset.setOnAction(event -> {
+                String text = MainView.this.pageOffset.getText();
+                if (text.isEmpty()) text = "0";
+                mainViewModel.onCorrectPage(fileInfo.getBookmark(), Integer.parseInt(text));
+            });
+
+            // fixme 即将删除
+            bookmark.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                if (newValue) {
+                    try {
+                        mainViewModel.onProcess(fileInfo);
+                    } catch (IOException e) {
+
+                        // JsonParseException 异常已被捕捉
+                        System.out.println(e.getMessage());
+                    } catch (EmptyContentException e) {
+                        // fixme
+                        emptyContextAlert.showAndWait();
+                        bookmark.setSelected(false);
+                    }
+                }
+            });
+
+            // fixme 即将删除
+            document.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    try {
+                        String path = mainViewModel.onSave(fileInfo);
+                    } catch (NonProcessException e) {
+                        //nonProcessAlert.setHeaderText(e.getMessage());
+                        nonProcessAlert.showAndWait();
+                        document.setSelected(false);
+                    }
+                }
+            });
+
+            generate.setOnAction(event -> {
+                try {
+                    mainViewModel.onProcess(fileInfo);
+                    mainViewModel.onSave(fileInfo);
+                    bookmark.setSelected(true);
+                    document.setSelected(true);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+
+        @Override
+        protected void updateItem(FileInfo fileInfo, boolean empty) {
+            super.updateItem(fileInfo, empty);
+            if (empty || fileInfo == null) {
+                setGraphic(null);
+                //System.out.println("2");
+            } else {
+                initialize();
+                fileName.setText(fileInfo.getOpenFile().getName());
+                this.fileInfo = fileInfo;
+                //controller.updateContent(fileInfo);
+                setGraphic(root);
+            }
+        }
     }
 
 }

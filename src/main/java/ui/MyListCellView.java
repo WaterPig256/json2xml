@@ -1,8 +1,6 @@
 package ui;
 
-import com.sun.tools.javac.Main;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
@@ -20,9 +18,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static ui.MyListCell2.emptyContextAlert;
-import static ui.MyListCell2.nonProcessAlert;
+import static ui.MyListCell3.emptyContextAlert;
+import static ui.MyListCell3.nonProcessAlert;
 
+@Deprecated
 public class MyListCellView implements Initializable {
     private static final MainModel mainModel = new MainModel();
     private static final MainViewModel mainViewModel = MainView.mainViewModel;
@@ -36,7 +35,6 @@ public class MyListCellView implements Initializable {
 
     public void updateContent(FileInfo fileInfo) {
         this.fileInfo = fileInfo;
-        fileInfo.setMyListCellView(this);
         //context.setSelected(fileInfo.getContext() != null);
         fileName.setText(fileInfo.getOpenFile().getName());
     }
@@ -109,6 +107,6 @@ public class MyListCellView implements Initializable {
 
 
     public void onOpenFile(ActionEvent actionEvent) {
-        System.out.println("List Cell Open");
+        //System.out.println("List Cell Open");
     }
 }
